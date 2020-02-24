@@ -4,6 +4,7 @@ const animalsModel = (sequelize, DataTypes) =>
       primaryKey: true,
       type: DataTypes.INTEGER,
       allowNull: false,
+      autoIncrement: true,
     },
     type: {
       type: DataTypes.STRING,
@@ -14,27 +15,27 @@ const animalsModel = (sequelize, DataTypes) =>
       allowNull: false,
     },
     dateOfBirth: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DATE,
         allowNull: false,
       },    
     dateOfDeath: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     lastVisit: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     medicalHistory: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
         allowNull: true,
       },  
     lastVaccination: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     ownerId: {
-        type: DataTypes.CHAR(40),
+        type: DataTypes.INTEGER,
         allowNull: false,
       },  
     isActive: {

@@ -4,6 +4,7 @@ const usersModel = (sequelize, DataTypes) =>
       primaryKey: true,
       type: DataTypes.INTEGER,
       allowNull: false,
+      autoIncrement: true,
     },
     firstname: {
       type: DataTypes.STRING,
