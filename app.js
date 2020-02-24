@@ -7,9 +7,9 @@ const port = process.env.PORT || 3000;
 const hostname = 'localhost';
 
 db.sequelize
-.authenticate()
-.then(() =>  console.log('Connected to database')) 
-.catch(err => console.error(err));
+  .authenticate()
+  .then(() => console.log('Connected to database'))
+  .catch(err => console.error(err));
 
 
 // ROUTER
@@ -18,7 +18,7 @@ const router = express
   .get('/', getUsers)
   .get('/:id', getUser)
   .post('/', createUser, getUser)
-//  .put('/:id', updateUser, getUser)
+  //  .put('/:id', updateUser, getUser)
   .delete('/:id', deleteUser, getUsers);
 
 // APP

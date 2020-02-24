@@ -2,8 +2,8 @@ const db = require('./index');
 
 const getUsers = async (req, res) => {
   try {
-    const users = await db.users.findAll();
-    const animals = await db.animals.findAll();
+    const users = await db.users.findAll({ raw: true });
+    const animals = await db.animals.findAll({ raw: true });
     const data = users.map(user => {
       const userAnimals = animals.filter(animal => animal.ownerId === user.id);
       return { ...user, animals: userAnimals };
@@ -18,32 +18,33 @@ const getUser = async (req, res) => {
   try {
     if (req.params.id !== undefined) {
       const data = await db.users.findOne(
-        { where: { id: req.params.id} }
+        { where: { id: req.params.id } }
       );
       if (data === null) {
         console.log('Not found!');
       } else {
-      res.status(200).send({ data });
-    }
+        res.status(200).send({ data });
+      }
     } else {
       const data = await db.users.findAll(
         {
           order: [['id', 'DESC'],],
-          limit: 1 
+          limit: 1
         },
       );
       if (data === null) {
         console.log('Not found!');
       } else {
-      res.status(200).send({ data });
+        res.status(200).send({ data });
+      }
     }
-  }} 
+  }
   catch (err) {
     console.log(err);
   }
 };
 
- const createUser = async (req, res, next) => {
+const createUser = async (req, res, next) => {
   try {
     const data = await db.users.create(req.body);
     next();
@@ -54,9 +55,9 @@ const getUser = async (req, res) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-      const data = await db.users.destroy(
-        { where: { id: req.params.id} });
-      console.log('Deleted!');    
+    const data = await db.users.destroy(
+      { where: { id: req.params.id } });
+    console.log('Deleted!');
   } catch (err) {
     console.log(err);
   }

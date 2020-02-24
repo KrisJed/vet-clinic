@@ -15,9 +15,9 @@ const usersModel = (sequelize, DataTypes) =>
       allowNull: false,
     },
     pesel: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-      },    
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
     address: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -27,20 +27,20 @@ const usersModel = (sequelize, DataTypes) =>
       allowNull: false,
     },
     telephone: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },  
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },  
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     isActive: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     }
   });
 

@@ -15,9 +15,9 @@ const animalsModel = (sequelize, DataTypes) =>
       allowNull: false,
     },
     dateOfBirth: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },    
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     dateOfDeath: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -27,20 +27,20 @@ const animalsModel = (sequelize, DataTypes) =>
       allowNull: true,
     },
     medicalHistory: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
-        allowNull: true,
-      },  
+      type: DataTypes.ARRAY(DataTypes.INTEGER),
+      allowNull: true,
+    },
     lastVaccination: {
       type: DataTypes.DATE,
       allowNull: true,
     },
     ownerId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },  
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     isActive: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     }
   });
 
