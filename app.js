@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const { getUsers, getUser, createUser, deleteUser } = require('./controllers');
+const { getUsers, getUser, createUser, createAnimal, updateUser } = require('./controllers');
 const db = require('./index');
 
 const port = process.env.PORT || 3000;
@@ -18,8 +18,9 @@ const router = express
   .get('/', getUsers)
   .get('/:id', getUser)
   .post('/', createUser, getUser)
-  //  .put('/:id', updateUser, getUser)
-  .delete('/:id', deleteUser, getUsers);
+  .post('/addAnimal', createAnimal, getUser)
+  .put('/:id', updateUser, getUser)
+
 
 // APP
 const app = express();

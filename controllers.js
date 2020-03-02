@@ -16,25 +16,39 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    if (req.params.id !== undefined) {
-      const data = await db.users.findOne(
-        { where: { id: req.params.id } }
-      );
-      if (data === null) {
+    const seekId = req.params.id;
+    if ((seekId !== undefined) && (typeof +seekId == "number")) {
+      const user = await db.users.findOne({
+        raw: true,
+        where: { id: seekId }
+      });
+      const animals = await db.animals.findAll({
+        raw: true,
+        where: { ownerId: seekId }
+      });
+      const data = { ...user, animals: [...animals] };
+      if (user === null) {
         console.log('Not found!');
       } else {
         res.status(200).send({ data });
       }
     } else {
-      const data = await db.users.findAll(
+      const user = await db.users.findAll(
         {
+          raw: true,
           order: [['id', 'DESC'],],
           limit: 1
         },
       );
-      if (data === null) {
+      if (user === null) {
         console.log('Not found!');
       } else {
+        const seekId = user[0].id;
+        const animals = await db.animals.findAll({
+          raw: true,
+          where: { ownerId: seekId }
+        });
+        const data = { ...user[0], animals: [...animals] };
         res.status(200).send({ data });
       }
     }
@@ -53,24 +67,48 @@ const createUser = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const createAnimal = async (req, res, next) => {
   try {
-    const data = await db.users.destroy(
-      { where: { id: req.params.id } });
-    console.log('Deleted!');
+    const users = await db.users.findAll({ raw: true });
+    const animalId = req.body.ownerId;
+    hasOwner = users.some(user => user.id === animalId);
+    if (hasOwner) {
+      await db.animals.create(req.body);
+      next();
+    } else {
+      console.log('Owner not found');
+      next();
+    }
   } catch (err) {
     console.log(err);
   }
-  next();
 };
 
-module.exports = { getUsers, getUser, createUser, deleteUser };
+const updateUser = async (req, res, next) => {
+  try {
+    await db.users.update(req.body, {
+      where: {
+        id: req.params.id
+      }
+    });
+    next();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-// export const updateUser = async (req, res, next) => {
+// const updateAnimal = async (req, res, next) => {
 //   try {
-//     await client.query(updateUserQuery(req.body, req.params.id));
+//     await db.animals.update(req.body , {
+//       where: {
+//         id: req.params.id
+//       }
+//     });
 //     next();
 //   } catch (err) {
 //     console.log(err);
 //   }
 // };
+
+module.exports = { getUsers, getUser, createUser, createAnimal, updateUser };
+
