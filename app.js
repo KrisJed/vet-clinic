@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const { getUsers, getUser, createUser, createAnimal, updateUser } = require('./controllers');
+const { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal } = require('./controllers');
 const db = require('./index');
 
 const port = process.env.PORT || 3000;
@@ -18,7 +18,8 @@ const router = express
   .get('/', getUsers)
   .get('/:id', getUser)
   .post('/', createUser, getUser)
-  .post('/addAnimal', createAnimal, getUser)
+  .post('/animals/', createAnimal, getUserByAnimal)
+  .put('/animals/:id', updateAnimal, getUserByAnimal)
   .put('/:id', updateUser, getUser)
 
 
