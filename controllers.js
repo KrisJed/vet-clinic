@@ -125,11 +125,32 @@ const createAnimal = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-    await db.users.update(req.body, {
-      where: {
-        id: req.params.id
+    const seekId = req.params.id;
+    const allUsers = await db.users.findAll({ raw: true });
+    const userExists = allUsers.some(user => user.id = seekId);
+    if (userExists) {
+      if (req.query['is-active'] === 'true') {
+        await db.users.update({ 'isActive': true }, {
+          where: {
+            id: seekId
+          }
+        });
+      } else if (req.query['is-active'] === 'false') {
+        await db.users.update({ 'isActive': false }, {
+          where: {
+            id: seekId
+          }
+        });
+      } else {
+        await db.users.update(req.body, {
+          where: {
+            id: seekId
+          }
+        });
       }
-    });
+    } else {
+      console.log('User not found!')
+    }
     next();
   } catch (err) {
     console.log(err);
@@ -142,27 +163,39 @@ const updateAnimal = async (req, res, next) => {
     let animals = await db.animals.findAll({ raw: true });
     const animalExists = animals.some(animal => animal.id === animalId);
     if (animalExists) {
-      const users = await db.users.findAll({ raw: true });
-      animals = await db.animals.findOne({
-        raw: true,
-        where: { id: animalId }
-      });
-      hasOwner = users.some(user => user.id === animals.ownerId);
-      if (hasOwner) {
-        await db.animals.update(req.body, {
+      if (req.query['is-active'] === 'true') {
+        await db.animals.update({ 'isActive': true }, {
           where: {
             id: animalId
           }
         });
-        next();
+      } else if (req.query['is-active'] === 'false') {
+        await db.animals.update({ 'isActive': false }, {
+          where: {
+            id: animalId
+          }
+        });
       } else {
-        console.log('Owner not found');
-        next();
+        const users = await db.users.findAll({ raw: true });
+        animals = await db.animals.findOne({
+          raw: true,
+          where: { id: animalId }
+        });
+        hasOwner = users.some(user => user.id === animals.ownerId);
+        if (hasOwner) {
+          await db.animals.update(req.body, {
+            where: {
+              id: animalId
+            }
+          });
+        } else {
+          console.log('Owner not found');
+        }
       }
     } else {
       console.log('Animal not found');
-      next();
     }
+    next();
   } catch (err) {
     console.log(err);
   }
