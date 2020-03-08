@@ -4,7 +4,7 @@ const { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, g
 const db = require('./index');
 
 const port = process.env.PORT || 3000;
-const hostname = 'localhost';
+const hostname = process.env.PORT ? '0.0.0.0' : 'localhost';
 
 db.sequelize
   .authenticate()
