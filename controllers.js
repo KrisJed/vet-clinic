@@ -1,7 +1,12 @@
 const db = require('./index');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const getUsers = async (req, res) => {
   try {
+    // spraqdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
+    // authorization mesage i jaki kod ma
+    // wydzielić funkcję
     const users = await db.users.findAll({ raw: true });
     const animals = await db.animals.findAll({ raw: true });
     const data = users.map(user => {
