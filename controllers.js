@@ -1,12 +1,14 @@
 const db = require('./index');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+// const bcrypt = require('bcrypt');
+// const saltRounds = 10;
+
+/* Dodać autoryzację:
+  sprawdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
+  authorization message i jaki kod ma
+  wydzielić funkcję */
 
 const getUsers = async (req, res) => {
   try {
-    // spraqdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
-    // authorization mesage i jaki kod ma
-    // wydzielić funkcję
     const users = await db.users.findAll({ raw: true });
     const animals = await db.animals.findAll({ raw: true });
     const data = users.map(user => {
@@ -21,8 +23,9 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const seekId = req.params.id;
-    if ((seekId !== undefined) && (typeof +seekId == "number")) {
+    let seekId = req.params.id;
+
+    if ((seekId !== undefined) && (typeof Number(seekId) === 'number')) {
       const user = await db.users.findOne({
         raw: true,
         where: { id: seekId }
@@ -33,30 +36,36 @@ const getUser = async (req, res) => {
       });
       const data = { ...user, animals: [...animals] };
       if (user === null) {
+        res.status(404);
         console.log('Not found!');
-      } else {
-        res.status(200).send({ data });
+        return;
       }
-    } else {
-      const user = await db.users.findAll(
-        {
-          raw: true,
-          order: [['id', 'DESC'],],
-          limit: 1
-        },
-      );
-      if (user === null) {
-        console.log('Not found!');
-      } else {
-        const seekId = user[0].id;
-        const animals = await db.animals.findAll({
-          raw: true,
-          where: { ownerId: seekId }
-        });
-        const data = { ...user[0], animals: [...animals] };
-        res.status(200).send({ data });
-      }
+      res.status(200).send({ data });
+      return;
     }
+
+    const user = await db.users.findAll(
+      {
+        raw: true,
+        order: [['id', 'DESC'],],
+        limit: 1
+      },
+    );
+
+    if (user === null) {
+      res.status(404);
+      console.log('Not found!');
+      return;
+    }
+
+    seekId = user[0].id;
+    const animals = await db.animals.findAll({
+      raw: true,
+      where: { ownerId: seekId }
+    });
+    const data = { ...user[0], animals: [...animals] };
+    res.status(200).send({ data });
+
   }
   catch (err) {
     console.log(err);
@@ -65,8 +74,10 @@ const getUser = async (req, res) => {
 
 const getUserByAnimal = async (req, res) => {
   try {
-    const seekId = req.params.id;
-    if ((seekId !== undefined) && (typeof +seekId == "number")) {
+    // For updateAnimal
+    let seekId = req.params.id;
+
+    if ((seekId !== undefined) && (seekId !== null) && (typeof Number(seekId) === 'number')) {
       let animals = await db.animals.findOne({
         raw: true,
         where: { id: seekId }
@@ -83,19 +94,45 @@ const getUserByAnimal = async (req, res) => {
         });
         const data = { ...user, animals: [...animals] };
         res.status(200).send({ data });
-      } else {
-        getUsers(req, res);
+        return;
       }
-    } else {
-      const user = await db.users.findAll(
-        { raw: true },
-      );
-      if (user === null) {
-        console.log('Empty database!');
-      } else {
-        getUsers(req, res);
-      }
+      res.status(404);
+      console.log('Not found!');
+      getUsers(req, res);
+      return;
     }
+
+    // For createAnimal
+    const ownerId = req.body.ownerId;
+
+    if ((ownerId !== null) && (typeof Number(ownerId) === 'number')) {
+      const user = await db.users.findOne({
+        raw: true,
+        where: { id: ownerId }
+      });
+      const animals = await db.animals.findAll({
+        raw: true,
+        where: { ownerId: ownerId }
+      });
+      const data = { ...user, animals: [...animals] };
+      if (user === null) {
+        res.status(404);
+        console.log('Not found!');
+        return;
+      }
+      res.status(200).send({ data });
+      return;
+    }
+
+    const user = await db.users.findAll(
+      { raw: true },
+    );
+    if (user === null) {
+      res.status(404);
+      console.log('Empty database!');
+      return;
+    }
+    getUsers(req, res);
   }
   catch (err) {
     console.log(err);
@@ -104,7 +141,8 @@ const getUserByAnimal = async (req, res) => {
 
 const createUser = async (req, res, next) => {
   try {
-    const data = await db.users.create(req.body);
+    await db.users.create(req.body);
+    res.status(200);
     next();
   } catch (err) {
     console.log(err);
@@ -116,13 +154,16 @@ const createAnimal = async (req, res, next) => {
     const users = await db.users.findAll({ raw: true });
     const animalId = req.body.ownerId;
     hasOwner = users.some(user => user.id === animalId);
+
     if (hasOwner) {
       await db.animals.create(req.body);
-      next();
-    } else {
-      console.log('Owner not found');
-      next();
+      res.status(200);
+      return next();
     }
+
+    res.status(404);
+    console.log('Owner id not found');
+    next();
   } catch (err) {
     console.log(err);
   }
@@ -133,30 +174,41 @@ const updateUser = async (req, res, next) => {
     const seekId = req.params.id;
     const allUsers = await db.users.findAll({ raw: true });
     const userExists = allUsers.some(user => user.id = seekId);
-    if (userExists) {
-      if (req.query['is-active'] === 'true') {
-        await db.users.update({ 'isActive': true }, {
-          where: {
-            id: seekId
-          }
-        });
-      } else if (req.query['is-active'] === 'false') {
-        await db.users.update({ 'isActive': false }, {
-          where: {
-            id: seekId
-          }
-        });
-      } else {
-        await db.users.update(req.body, {
-          where: {
-            id: seekId
-          }
-        });
-      }
-    } else {
-      console.log('User not found!')
+
+    if (!userExists) {
+      res.status(404);
+      return next();
     }
+
+    if (req.query['is-active'] === 'true') {
+      await db.users.update({ 'isActive': true }, {
+        where: {
+          id: seekId
+        }
+      });
+      res.status(200);
+      return next();
+    }
+
+    if (req.query['is-active'] === 'false') {
+      await db.users.update({ 'isActive': false }, {
+        where: {
+          id: seekId
+        }
+      });
+      res.status(200);
+      return next();
+    }
+
+    await db.users.update(req.body, {
+      where: {
+        id: seekId
+      }
+    });
+
+    res.status(200);
     next();
+
   } catch (err) {
     console.log(err);
   }
@@ -167,40 +219,52 @@ const updateAnimal = async (req, res, next) => {
     const animalId = +req.params.id;
     let animals = await db.animals.findAll({ raw: true });
     const animalExists = animals.some(animal => animal.id === animalId);
-    if (animalExists) {
-      if (req.query['is-active'] === 'true') {
-        await db.animals.update({ 'isActive': true }, {
-          where: {
-            id: animalId
-          }
-        });
-      } else if (req.query['is-active'] === 'false') {
-        await db.animals.update({ 'isActive': false }, {
-          where: {
-            id: animalId
-          }
-        });
-      } else {
-        const users = await db.users.findAll({ raw: true });
-        animals = await db.animals.findOne({
-          raw: true,
-          where: { id: animalId }
-        });
-        hasOwner = users.some(user => user.id === animals.ownerId);
-        if (hasOwner) {
-          await db.animals.update(req.body, {
-            where: {
-              id: animalId
-            }
-          });
-        } else {
-          console.log('Owner not found');
-        }
-      }
-    } else {
-      console.log('Animal not found');
+
+    if (!animalExists) {
+      res.status(404);
+      return next();;
     }
+
+    if (req.query['is-active'] === 'true') {
+      await db.animals.update({ 'isActive': true }, {
+        where: {
+          id: animalId
+        }
+      });
+      res.status(200);
+      return next();
+    }
+
+    if (req.query['is-active'] === 'false') {
+      await db.animals.update({ 'isActive': false }, {
+        where: {
+          id: animalId
+        }
+      });
+      res.status(200);
+      return next();
+    }
+
+    const users = await db.users.findAll({ raw: true });
+    animals = await db.animals.findOne({
+      raw: true,
+      where: { id: animalId }
+    });
+    hasOwner = users.some(user => user.id === animals.ownerId);
+
+    if (hasOwner) {
+      await db.animals.update(req.body, {
+        where: {
+          id: animalId
+        }
+      });
+      res.status(200);
+      return next();
+    }
+
+    res.status(404);
     next();
+
   } catch (err) {
     console.log(err);
   }
