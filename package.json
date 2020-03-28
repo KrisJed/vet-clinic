@@ -2,7 +2,8 @@
   "main": "app.js",
   "scripts": {
     "start": "npm run build && node ./build/app.js",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "tsc": "tsc"
   },
   "name": "vet",
   "description": "",
