@@ -1,10 +1,10 @@
-const express = require('express');
-const http = require('http');
-const { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal } = require('./controllers');
-const db = require('./index');
+const express = require ('express');
+import * as http from 'http';
+import { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal } from './controllers';
+import * as db from './index';
 
-const port = process.env.PORT || 3000;
-const hostname = process.env.PORT ? '0.0.0.0' : 'localhost';
+const port :number = (process.env.PORT || 3000) as number;
+const hostname : string = process.env.PORT ? '0.0.0.0' : 'localhost';
 
 db.sequelize
   .authenticate()

@@ -1,9 +1,8 @@
-const { Sequelize, DataTypes } = require('sequelize');
+import { Sequelize, DataTypes } from 'sequelize';
 const usersModel = require('./users');
-const animalsModel = require('./animals');
-// const uri = require('./env');
+const animalsModel =require('./animals');
 
-const url = process.env.DATABASE_URL || require('./env');
+const url : string = process.env.DATABASE_URL || require('./env');
 
 const sequelize = new Sequelize(url, { dialectOptions: { ssl: true } })
 
@@ -17,5 +16,4 @@ db.users.hasOne(db.animals, {
   foreignKey: 'ownerId'
 });
 
-
-module.exports = db;
+export = db;

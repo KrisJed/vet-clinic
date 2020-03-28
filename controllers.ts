@@ -1,6 +1,7 @@
-const db = require('./index');
-// const bcrypt = require('bcrypt');
-// const saltRounds = 10;
+import * as db from './index';
+
+// import * as bcrypt from 'bcrypt';
+// const saltRounds : number = 10;
 
 /* Dodać autoryzację:
   sprawdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
@@ -10,6 +11,7 @@ const db = require('./index');
 const getUsers = async (req, res) => {
   try {
     const users = await db.users.findAll({ raw: true });
+    console.log(users);
     const animals = await db.animals.findAll({ raw: true });
     const data = users.map(user => {
       const userAnimals = animals.filter(animal => animal.ownerId === user.id);
@@ -153,7 +155,7 @@ const createAnimal = async (req, res, next) => {
   try {
     const users = await db.users.findAll({ raw: true });
     const animalId = req.body.ownerId;
-    hasOwner = users.some(user => user.id === animalId);
+    const hasOwner = users.some(user => user.id === animalId);
 
     if (hasOwner) {
       await db.animals.create(req.body);
@@ -250,7 +252,7 @@ const updateAnimal = async (req, res, next) => {
       raw: true,
       where: { id: animalId }
     });
-    hasOwner = users.some(user => user.id === animals.ownerId);
+    const hasOwner = users.some(user => user.id === animals.ownerId);
 
     if (hasOwner) {
       await db.animals.update(req.body, {
@@ -270,4 +272,4 @@ const updateAnimal = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal };
+export { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal };

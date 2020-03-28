@@ -44,4 +44,4 @@ const animalsModel = (sequelize, DataTypes) =>
     }
   });
 
-module.exports = animalsModel;
+export = animalsModel;
