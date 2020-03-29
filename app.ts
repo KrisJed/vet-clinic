@@ -1,30 +1,36 @@
-const express = require ('express');
+import express, { Router, Express } from 'express';
 import * as http from 'http';
-import { getUsers, getUser, createUser, createAnimal, updateUser, updateAnimal, getUserByAnimal } from './controllers';
-import * as db from './index';
+import {
+  getUsers,
+  getUser,
+  createUser,
+  createAnimal,
+  updateUser,
+  updateAnimal,
+  getUserByAnimal,
+} from './controllers';
+import db from './index';
 
-const port :number = (process.env.PORT || 3000) as number;
-const hostname : string = process.env.PORT ? '0.0.0.0' : 'localhost';
+const port: number = Number(process.env.PORT) || 3000;
+const hostname: string = process.env.PORT ? '0.0.0.0' : 'localhost';
 
 db.sequelize
   .authenticate()
-  .then(() => console.log('Connected to database'))
-  .catch(err => console.error(err));
-
+  .then((): void => console.log('Connected to database'))
+  .catch((err: Error): void => console.error(err));
 
 // ROUTER
-const router = express
+const router: Router = express
   .Router()
   .get('/', getUsers)
   .get('/:id', getUser)
   .post('/', createUser, getUser)
   .post('/animals/', createAnimal, getUserByAnimal)
   .put('/animals/:id', updateAnimal, getUserByAnimal)
-  .put('/:id', updateUser, getUser)
-
+  .put('/:id', updateUser, getUser);
 
 // APP
-const app = express();
+const app: Express = express();
 app
   .set('port', port)
   .use(express.static('.'))
@@ -34,4 +40,6 @@ app
 // SERVER
 http
   .createServer(app)
-  .listen(port, hostname, () => console.log(`App listening on port ${port}!`));
+  .listen(port, hostname, (): void =>
+    console.log(`App listening on port ${port}!`),
+  );

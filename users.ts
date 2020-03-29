@@ -1,77 +1,72 @@
-import { Sequelize, Model, DataTypes, BuildOptions } from 'sequelize';
+import {
+  Sequelize,
+  DataTypes,
+  Model,
+  BuildOptions,
+  ModelAttributeColumnOptions,
+} from 'sequelize';
 
-// class User extends Model {
-//   public id!: number; // Note that the `null assertion` `!` is required in strict mode.
-//   public name!: string;
-//   public preferredName!: string | null; // for nullable fields
+export interface UserModel extends Partial<Model> {
+  id: ModelAttributeColumnOptions;
+  firstname: ModelAttributeColumnOptions;
+  lastname: ModelAttributeColumnOptions;
+  pesel: ModelAttributeColumnOptions;
+  address: ModelAttributeColumnOptions;
+  city: ModelAttributeColumnOptions;
+  telephone: ModelAttributeColumnOptions;
+  email: ModelAttributeColumnOptions;
+  password: ModelAttributeColumnOptions;
+  isActive: ModelAttributeColumnOptions;
+}
 
-//   // timestamps!
-//   public readonly createdAt!: Date;
-//   public readonly updatedAt!: Date;
+export type UserModelStatic = typeof Model &
+  (new (values?: object, options?: BuildOptions) => UserModel);
 
-//   // Since TS cannot determine model association at compile time
-//   // we have to declare them here purely virtually
-//   // these will not exist until `Model.init` was called.
-
-//   public getProjects!: HasManyGetAssociationsMixin<Project>; // Note the null assertions!
-//   public addProject!: HasManyAddAssociationMixin<Project, number>;
-//   public hasProject!: HasManyHasAssociationMixin<Project, number>;
-//   public countProjects!: HasManyCountAssociationsMixin;
-//   public createProject!: HasManyCreateAssociationMixin<Project>;
-
-//   // You can also pre-declare possible inclusions, these will only be populated if you
-//   // actively include a relation.
-//   public readonly projects?: Project[]; // Note this is optional since it's only populated when explicitly requested in code
-
-//   public static associations: {
-//     projects: Association<User, Project>;
-//   };
-// }
-
-const usersModel = (sequelize, DataTypes) =>
+export const usersModel = (
+  sequelize: Sequelize,
+  dataTypes: typeof DataTypes,
+): UserModelStatic =>
   sequelize.define('users', {
     id: {
       primaryKey: true,
-      type: DataTypes.INTEGER,
+      type: dataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
     },
     firstname: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     lastname: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     pesel: {
-      type: DataTypes.BIGINT,
+      type: dataTypes.BIGINT,
       allowNull: false,
     },
     address: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     city: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     telephone: {
-      type: DataTypes.INTEGER,
+      type: dataTypes.INTEGER,
       allowNull: false,
     },
     email: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     password: {
-      type: DataTypes.STRING,
+      type: dataTypes.STRING,
       allowNull: false,
     },
     isActive: {
-      type: DataTypes.BOOLEAN,
+      type: dataTypes.BOOLEAN,
       allowNull: false,
-    }
-  });
-
-export = usersModel;
+    },
+  }) as UserModelStatic;
