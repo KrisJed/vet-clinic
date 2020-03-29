@@ -3,9 +3,10 @@ const db = require('./index');
 // const saltRounds = 10;
 
 /* Dodać autoryzację:
-  sprawdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
-  authorization message i jaki kod ma
-  wydzielić funkcję */
+ * sprawdzić czy jakiś uzytkownik ma taki hash, jeśli nie to błąd autoryzacji
+ * authorization message i jaki kod ma
+ * wydzielić funkcję 
+ */
 
 const getUsers = async (req, res) => {
   try {
